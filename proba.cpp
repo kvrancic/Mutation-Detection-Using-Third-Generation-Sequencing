@@ -7,23 +7,24 @@
 
 using namespace std;
 
-// Funkcija za parsiranje SAM zapisa i zapisivanje mutacija u CSV formatu
+// Function for parsing SAM records and writing mutations to a CSV file
 void processSAM(const string& samFileName, const string& csvFileName) {
     ifstream samFile(samFileName);
     ofstream csvFile(csvFileName);
 
+    // Check if files are opened successfully
     if (!samFile.is_open() || !csvFile.is_open()) {
         cerr << "Failed to open files!" << endl;
         return;
     }
 
-    // Prolazak kroz svaki redak u SAM datoteci
+    // Iterate through each line in the SAM file
     string line;
     while (getline(samFile, line)) {
-        // Preskačemo zaglavlje SAM datoteke
+        // Skip header lines in the SAM file
         if (line[0] == '@') continue;
 
-        // Razdvajanje redaka na polja
+        // Split line into fields
         vector<string> fields;
         string field;
         stringstream ss(line);
@@ -31,12 +32,12 @@ void processSAM(const string& samFileName, const string& csvFileName) {
             fields.push_back(field);
         }
 
-        // Uzimamo potrebne informacije iz SAM zapisa
-        string cigar = fields[5];
-        string referencePos = fields[3];
-        string readSeq = fields[9];
+        // Extract necessary information from the SAM record
+        string cigar = fields[5];           // CIGAR string
+        string referencePos = fields[3];    // Reference position
+        string readSeq = fields[9];         // Read sequence
 
-        // Iteriramo kroz CIGAR string i identificiramo mutacije
+        // Iterate through the CIGAR string and identify mutations
         size_t pos = 0;
         size_t refPos = stoi(referencePos);
         for (char c : cigar) {
@@ -45,7 +46,7 @@ void processSAM(const string& samFileName, const string& csvFileName) {
             int length = stoi(cigar.substr(pos, string::npos));
             pos += to_string(length).size();
 
-            // Ako je detektirana mutacija, zapisujemo je u CSV datoteku
+            // If a mutation is detected, write it to the CSV file
             if (op == 'D' || op == 'I' || op == 'X') {
                 if (op == 'D') {
                     csvFile << "D;" << refPos << ";" << "-" << endl;
@@ -56,28 +57,28 @@ void processSAM(const string& samFileName, const string& csvFileName) {
                 }
             }
 
-            // Ažuriramo referentnu poziciju
+            // Update reference position
             if (op != 'I') refPos += length;
         }
     }
 
-    // Zatvaramo datoteke
+    // Close files
     samFile.close();
     csvFile.close();
 }
 
 int main() {
-    // Mapiranje očitanja na referentne genome
+    // Mapping reads to reference genomes
     //system("minimap2 -c ecoli.fasta ecoli_simulated_reads.fasta > ecoli_alignments.sam");
     //system("minimap2 -c lambda.fasta lambda_simulated_reads.fasta > lambda_alignments.sam");
 
-    // Analiza mutacija
+    // Mutation analysis
     processSAM("data/ecoli_alignments.sam", "data/ecoli_mutated.csv");
 
     //processSAM("data/ecoli_alignments.sam", "data/ecoli_mutaded.csv");
    // processSAM("lambda_alignments.sam", "lambda_mutaded.csv");
 
-    // Evaluacija s FreeBayesom (pretpostavljeni koraci)
+    // Evaluation with FreeBayes (assumed steps)
     // system("freebayes -f ecoli.fasta ecoli_simulated_reads.fasta > ecoli_variants.vcf");
     // system("freebayes -f lambda.fasta lambda_simulated_reads.fasta > lambda_variants.vcf");
 
