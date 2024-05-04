@@ -1,9 +1,10 @@
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cstdlib>
+#include <regex>
 
 using namespace std;
 
@@ -17,7 +18,6 @@ void executeCommand(const string& command) {
 }
 
 // Function to parse the SAM file and extract mutations
-// Function to detect mutations from .SAM file
 void detectMutations(const string& samFile, const string& outputFile) {
     ifstream inFile(samFile);
     ofstream outFile(outputFile);
@@ -31,21 +31,58 @@ void detectMutations(const string& samFile, const string& outputFile) {
         exit(EXIT_FAILURE);
     }
 
+    regex cigarRegex("([0-9]+)([MIDNSHP=X])");
+    smatch matches;
+
     while (getline(inFile, line)) {
         if (line[0] == '@') continue; // Skip header lines
 
         istringstream iss(line);
         vector<string> tokens((istream_iterator<string>(iss)), istream_iterator<string>());
 
-        // Assuming fields are properly formatted and the sequence is in the 10th field (index 9)
-        if (tokens.size() > 9 && tokens[1] != "4") { // Make sure it's an aligned sequence
+        if (tokens.size() > 9 && tokens[1] != "4") { // Aligned sequence
             string seq = tokens[9];
-            int position = stoi(tokens[3]); // Starting position of alignment
+            int pos = stoi(tokens[3]); // Starting position of alignment
+            string cigar = tokens[5];
+            size_t seqIdx = 0;
 
-            // Placeholder for mutation detection logic
-            for (size_t i = 0; i < seq.length(); i++) {
-                // This is a simplification; real mutation detection should consider the reference sequence
-                outFile << "Substitution," << (position + i) << "," << seq[i] << "\n";
+            while (regex_search(cigar, matches, cigarRegex)) {
+                int len = stoi(matches[1]);
+                char type = matches[2].str()[0];
+
+                switch (type) {
+                    case 'M': // Match or mismatch (assumed match here)
+                        seqIdx += len;
+                        pos += len;
+                        break;
+                    case 'X': // Sequence mismatch explicitly
+                        for (int i = 0; i < len; ++i) {
+                            outFile << "Supstitucija,X," << (pos++) << "," << seq[seqIdx++] << "\n";
+                        }
+                        break;
+                    case 'I': // Insertion to the reference
+                        outFile << "Umetanje,I," << pos << ",";
+                        for (int i = 0; i < len; ++i) {
+                            outFile << seq[seqIdx++];
+                        }
+                        outFile << "\n";
+                        break;
+                    case 'D': // Deletion from the reference
+                        outFile << "Brisanje,D," << pos << ",-\n";
+                        pos += len;
+                        break;
+                    case 'N': // Skipped region from the reference
+                        pos += len;
+                        break;
+                    case 'S': // Soft clipping
+                    case 'H': // Hard clipping
+                    case 'P': // Padding
+                    case '=': // Sequence match
+                        pos += len;
+                        seqIdx += len;
+                        break;
+                }
+                cigar = matches.suffix().str();
             }
         }
     }
@@ -53,6 +90,7 @@ void detectMutations(const string& samFile, const string& outputFile) {
     inFile.close();
     outFile.close();
 }
+
 
 int main() {
     // This is hard-coded for simplicity, but could be passed as command-line arguments
@@ -63,6 +101,7 @@ int main() {
 
     // Step 1: Run Minimap2
     string minimapCmd = "minimap2 -ax map-ont " + reference + " " + reads + " > " + samOutput;
+    cout << "Running Minimap2: " << minimapCmd << endl;
     executeCommand(minimapCmd);
 
     // Step 2: Parse SAM file to detect mutations
