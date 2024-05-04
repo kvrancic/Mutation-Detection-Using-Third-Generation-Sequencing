@@ -17,7 +17,7 @@ void executeCommand(const string& command) {
 }
 
 // Function to parse the SAM file and extract mutations
-// Function to detect mutations from SAM file
+// Function to detect mutations from .SAM file
 void detectMutations(const string& samFile, const string& outputFile) {
     ifstream inFile(samFile);
     ofstream outFile(outputFile);
