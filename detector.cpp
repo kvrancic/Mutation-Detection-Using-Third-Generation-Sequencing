@@ -101,6 +101,10 @@ int main() {
     string csvOutput = "data/mutations.csv";
     string vcfOutput = "data/variants.vcf";
     string indexCmd = "samtools faidx " + reference; // Command to generate index
+    // Define paths for marked BAM file and metrics file
+    string markedBam = "data/alignment_marked.bam"; 
+    string metricsFile = "data/mark_duplicates_metrics.txt"; 
+
 
     // Step 1: Run Minimap2
     string minimapCmd = "minimap2 -ax map-ont " + reference + " " + reads + " > " + samOutput;
@@ -126,18 +130,24 @@ int main() {
     cout << "Sorting BAM file: " << sortCmd << endl;
     executeCommand(sortCmd);
 
-    // Step 6: Index sorted BAM file
-    string indexSortedCmd = "samtools index " + sortedBam;
-    cout << "Indexing sorted BAM file: " << indexSortedCmd << endl;
-    executeCommand(indexSortedCmd);
+    // Step 6: Mark duplicates‚
+    string markDuplicatesCmd = "picard MarkDuplicates I=" + sortedBam + " O=" + markedBam + " M=" + metricsFile + " REMOVE_DUPLICATES=true";
+    cout << "Marking duplicates: " << markDuplicatesCmd << endl;
+    executeCommand(markDuplicatesCmd);
 
-    // Step 7: Run FreeBayes for evaluation
-    string freebayesCmd = "freebayes -f " + reference + " " + sortedBam + " > " + vcfOutput;
+    // Step 7: Index marked BAM file
+    string indexMarkedCmd = "samtools index " + markedBam;
+    cout << "Indexing marked BAM file: " << indexMarkedCmd << endl;
+    executeCommand(indexMarkedCmd);
+
+    // Step 8: Run FreeBayes for evaluation
+    string freebayesCmd = "freebayes -f " + reference + " " + markedBam + " > " + vcfOutput;
     cout << "Running FreeBayes: " << freebayesCmd << endl;
     executeCommand(freebayesCmd);
 
+
     cout << "Variant calling completed. Results are stored in " << vcfOutput << endl;
-     //inspect the contents of the VCF file: bcftools view data/variants.vcf
+     //inspect VCF file: bcftools view data/variants.vcf
  
     return 0;
 }
