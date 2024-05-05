@@ -91,13 +91,16 @@ void detectMutations(const string& samFile, const string& outputFile) {
     outFile.close();
 }
 
-
 int main() {
     // This is hard-coded for simplicity, but could be passed as command-line arguments
-    string reference = "lambda.fasta";
-    string reads = "lambda_simulated_reads.fasta";
-    string samOutput = "alignment.sam";
-    string csvOutput = "mutations.csv";
+    string reference = "data/lambda.fasta";
+    string reads = "data/lambda_simulated_reads.fasta";
+    string samOutput = "data/alignment.sam";
+    string bamOutput = "data/alignment.bam";
+    string sortedBam = "data/alignment_sorted.bam";
+    string csvOutput = "data/mutations.csv";
+    string vcfOutput = "data/variants.vcf";
+    string indexCmd = "samtools faidx " + reference; // Command to generate index
 
     // Step 1: Run Minimap2
     string minimapCmd = "minimap2 -ax map-ont " + reference + " " + reads + " > " + samOutput;
@@ -109,5 +112,32 @@ int main() {
 
     cout << "Mutation detection completed. Results are stored in " << csvOutput << endl;
 
+    // Step 3: Generate index for the reference genome
+    cout << "Generating index for the reference genome..." << endl;
+    executeCommand(indexCmd); // Execute the command to generate index
+
+    // Step 4: Convert SAM to BAM
+    string samToBamCmd = "samtools view -bS " + samOutput + " > " + bamOutput;
+    cout << "Converting SAM to BAM: " << samToBamCmd << endl;
+    executeCommand(samToBamCmd);
+
+    // Step 5: Sort BAM file
+    string sortCmd = "samtools sort -o " + sortedBam + " " + bamOutput;
+    cout << "Sorting BAM file: " << sortCmd << endl;
+    executeCommand(sortCmd);
+
+    // Step 6: Index sorted BAM file
+    string indexSortedCmd = "samtools index " + sortedBam;
+    cout << "Indexing sorted BAM file: " << indexSortedCmd << endl;
+    executeCommand(indexSortedCmd);
+
+    // Step 7: Run FreeBayes for evaluation
+    string freebayesCmd = "freebayes -f " + reference + " " + sortedBam + " > " + vcfOutput;
+    cout << "Running FreeBayes: " << freebayesCmd << endl;
+    executeCommand(freebayesCmd);
+
+    cout << "Variant calling completed. Results are stored in " << vcfOutput << endl;
+     //inspect the contents of the VCF file: bcftools view data/variants.vcf
+ 
     return 0;
 }
