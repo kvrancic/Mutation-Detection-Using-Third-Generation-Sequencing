@@ -140,10 +140,12 @@ int main() {
     cout << "Indexing marked BAM file: " << indexMarkedCmd << endl;
     executeCommand(indexMarkedCmd);
 
-    // Step 8: Run FreeBayes for evaluation
-    string freebayesCmd = "freebayes -f " + reference + " " + markedBam + " > " + vcfOutput;
-    cout << "Running FreeBayes: " << freebayesCmd << endl;
+
+    // Step 8: Run FreeBayes for evaluation with optimization
+    string freebayesCmd = "freebayes -f " + reference + " --use-best-n-alleles 4 --min-alternate-count 3 " + markedBam + " > " + vcfOutput;
+    cout << "Running FreeBayes with optimization: " << freebayesCmd << endl;
     executeCommand(freebayesCmd);
+
 
 
     cout << "Variant calling completed. Results are stored in " << vcfOutput << endl;
