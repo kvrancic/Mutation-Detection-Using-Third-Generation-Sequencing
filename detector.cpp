@@ -8,6 +8,14 @@
 
 using namespace std;
 
+// Structure to represent a mutation
+struct Mutation {
+    string Type;           // Type of mutation (Substitution, Insertion, Deletion, etc.)
+    int Position;          // Position of the mutation
+    string Base;           // Base or sequence involved in the mutation
+};
+
+
 // Function to execute system command
 void executeCommand(const string& command) {
     int result = system(command.c_str());
@@ -106,7 +114,7 @@ vector<Mutation> loadVariantsFromVCF(const string& vcfFile) {
         // Extract fields from the VCF line
         iss >> chr >> pos >> id >> ref >> alt >> qual >> filter >> info >> format >> sample;
 
-        if (alt != ".") { // If variant exists
+        if (alt != ".") { // If variant already exists
             // Take only the first variant
             istringstream altStream(alt);
             string firstAlt;
