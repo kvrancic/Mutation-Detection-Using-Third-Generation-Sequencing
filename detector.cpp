@@ -91,6 +91,34 @@ void detectMutations(const string& samFile, const string& outputFile) {
     outFile.close();
 }
 
+// Function to load variants from the VCF file generated from FreeBayes
+vector<Mutation> loadVariantsFromVCF(const string& vcfFile) {
+    ifstream inFile(vcfFile);
+    vector<Mutation> variants;
+    string line;
+
+    while (getline(inFile, line)) {
+        if (line[0] == '#') continue; // Skip header lines
+
+        istringstream iss(line);
+        string chr, pos, id, ref, alt, qual, filter, info, format, sample;
+
+        // Extract fields from the VCF line
+        iss >> chr >> pos >> id >> ref >> alt >> qual >> filter >> info >> format >> sample;
+
+        if (alt != ".") { // If variant exists
+            // Take only the first variant
+            istringstream altStream(alt);
+            string firstAlt;
+            getline(altStream, firstAlt, ',');
+            variants.push_back({"Variant", stoi(pos) - 1, firstAlt}); // -1 because of zero-based position
+        }
+    }
+
+    return variants;
+}
+
+
 int main() {
     // This is hard-coded for simplicity, but could be passed as command-line arguments
     string reference = "data/lambda.fasta";
