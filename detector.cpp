@@ -4,23 +4,18 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <regex>
+#include <algorithm>
 
 using namespace std;
 
-// Structure to store mutation information
 struct Mutation {
-    char type;
-    int position;
-    char nucleotide;
-
-    Mutation(char t, int pos, char nuc) : type(t), position(pos), nucleotide(nuc) {}
+    string type;  // Type of mutation (Substitution, Insertion, Deletion)
+    int position; // Position of the mutation
+    string base;  // Base or sequence involved in the mutation
 };
 
-
-
-
-// Function to execute system command
 void executeCommand(const string& command) {
     int result = system(command.c_str());
     if (result != 0) {
@@ -29,117 +24,38 @@ void executeCommand(const string& command) {
     }
 }
 
-
-// Function to parse the CIGAR string and identify mutations
-void parseCigarString(const string& cigar, int referenceStart, vector<Mutation>& mutations) {
-    int position = referenceStart; // Initialize position on the reference genome
-
-    // Parse the CIGAR string
-    size_t pos = 0;
-    while (pos < cigar.length()) {
-        // Extract the length of each operation
-        size_t end = cigar.find_first_of("MIDNSHP=X", pos);
-        if (end == string::npos) {
-            end = cigar.length();
-        }
-        int length = stoi(cigar.substr(pos, end - pos));
-
-        // Determine the operation
-        char operation = cigar[end];
-        if (operation == 'X') {
-            // Substitution mutation
-            for (int i = 0; i < length; ++i) {
-                int poz;
-                char nucleotide; // Fetch the nucleotide from the read (for example)
-                // Store the mutation information
-                poz = position + i;
-                mutations.push_back(Mutation('X', poz, nucleotide));
-            }
-        } else if (operation == 'I') {
-            // Insertion mutation
-            char nucleotide; // Fetch the inserted nucleotide from the read (for example)
-            // Store the mutation information
-            mutations.push_back(Mutation('I', position - 1, nucleotide)); // Position before insertion
-        } else if (operation == 'D') {
-            // Deletion mutation
-            // Store the mutation information
-            mutations.push_back(Mutation('D', position, '-'));
-            // Move the reference position forward by the length of the deletion
-            position += length;
-        } else if (operation == 'M') {
-            // Match operation, move the reference position forward
-            position += length;
-        }
-
-        // Move to the next operation in the CIGAR string
-        pos = end + 1;
-    }
+void mapReadsWithMinimap2(const string& reference, const string& reads, const string& samOutput) {
+    string minimapCmd = "minimap2 -ax map-ont " + reference + " " + reads + " > " + samOutput;
+    cout << "Running Minimap2: " << minimapCmd << endl;
+    executeCommand(minimapCmd);
 }
 
-// Updated function to identify mutations from the PAF file
-vector<Mutation> identifyMutationsFromPAF(const string& pafFilename) {
-    vector<Mutation> mutations;
-
-    ifstream file(pafFilename);
-    if (!file.is_open()) {
-        cerr << "Unable to open file " << pafFilename << endl;
-        return mutations;
-    }
-
-    // Iterating through each line of the PAF file
-    string line;
-    while (getline(file, line)) {
-        istringstream iss(line);
-        string cigar;
-        int referenceStart, referenceEnd;
-        // Reading necessary data from the PAF line
-        iss >> cigar >> referenceStart >> referenceEnd;
-        // Parse the CIGAR string and identify mutations
-        parseCigarString(cigar, referenceStart, mutations);
-    }
-
-    file.close();
-    return mutations;
-}
-
-
-// Function to write mutations to a CSV file
-void writeMutationsToCSV(const vector<Mutation>& mutations, const string& filename) {
-    ofstream file(filename);
-    if (!file.is_open()) {
-        cerr << "Unable to open file " << filename << endl;
-        return;
-    }
-
-    // Writing CSV file header
-    file << "Mutation,Position,Nucleotide" << endl;
-
-    // Writing each mutation in CSV format
-    for (const auto& mutation : mutations) {
-        file << mutation.type << "," << mutation.position << "," << mutation.nucleotide << endl;
-    }
-
-    file.close();
-}
-
-// Function to parse the SAM file and extract mutations
-void detectMutations(const string& samFile, const string& outputFile) {
-    ifstream inFile(samFile);
+void detectMutations(const string& samFile, const string& referenceFile, const string& outputFile) {
+    ifstream sam(samFile);
+    ifstream reference(referenceFile);
     ofstream outFile(outputFile);
     string line;
+
+    // Read reference genome into a string
+    string refGenome, refLine;
+    while (getline(reference, refLine)) {
+        if (refLine[0] == '>') continue; // Skip the header line
+        refGenome += refLine;
+    }
 
     // Write the header for the CSV file
     outFile << "Type,Position,Base\n";
 
-    if (!inFile.is_open() || !outFile.is_open()) {
+    if (!sam.is_open() || !outFile.is_open()) {
         cerr << "Failed to open files." << endl;
         exit(EXIT_FAILURE);
     }
 
+    map<int, map<char, int>> positionBaseCount;
     regex cigarRegex("([0-9]+)([MIDNSHP=X])");
     smatch matches;
 
-    while (getline(inFile, line)) {
+    while (getline(sam, line)) {
         if (line[0] == '@') continue; // Skip header lines
 
         istringstream iss(line);
@@ -147,7 +63,7 @@ void detectMutations(const string& samFile, const string& outputFile) {
 
         if (tokens.size() > 9 && tokens[1] != "4") { // Aligned sequence
             string seq = tokens[9];
-            int pos = stoi(tokens[3]); // Starting position of alignment
+            int pos = stoi(tokens[3]) - 1; // Starting position of alignment (0-based index)
             string cigar = tokens[5];
             size_t seqIdx = 0;
 
@@ -156,35 +72,35 @@ void detectMutations(const string& samFile, const string& outputFile) {
                 char type = matches[2].str()[0];
 
                 switch (type) {
-                    case 'M': // Match or mismatch (assumed match here)
+                    case 'M': // Match or mismatch
+                        for (int i = 0; i < len; ++i) {
+                            char refBase = refGenome[pos + i];
+                            char readBase = seq[seqIdx + i];
+                            if (refBase != readBase) {
+                                positionBaseCount[pos + i][readBase]++;
+                            }
+                        }
+                        pos += len;
                         seqIdx += len;
-                        pos += len;
                         break;
-                    case 'X': // Sequence mismatch explicitly
+                    case 'I': // Insertion
                         for (int i = 0; i < len; ++i) {
-                            outFile << "Supstitucija,X," << (pos++) << "," << seq[seqIdx++] << "\n";
+                            positionBaseCount[pos]['I']++;
                         }
+                        seqIdx += len;
                         break;
-                    case 'I': // Insertion to the reference
-                        outFile << "Umetanje,I," << pos << ",";
+                    case 'D': // Deletion
                         for (int i = 0; i < len; ++i) {
-                            outFile << seq[seqIdx++];
+                            positionBaseCount[pos + i]['D']++;
                         }
-                        outFile << "\n";
-                        break;
-                    case 'D': // Deletion from the reference
-                        outFile << "Brisanje,D," << pos << ",-\n";
-                        pos += len;
-                        break;
-                    case 'N': // Skipped region from the reference
                         pos += len;
                         break;
                     case 'S': // Soft clipping
                     case 'H': // Hard clipping
+                    case 'N': // Skipped region from the reference
                     case 'P': // Padding
                     case '=': // Sequence match
-                        pos += len;
-                        seqIdx += len;
+                    case 'X': // Sequence mismatch
                         break;
                 }
                 cigar = matches.suffix().str();
@@ -192,79 +108,98 @@ void detectMutations(const string& samFile, const string& outputFile) {
         }
     }
 
-    inFile.close();
+    // Detect mutations based on majority vote
+    for (const auto& entry : positionBaseCount) {
+        int pos = entry.first;
+        const auto& baseCounts = entry.second;
+
+        if (baseCounts.size() > 1) {
+            auto maxElement = max_element(baseCounts.begin(), baseCounts.end(),
+                                          [](const pair<char, int>& a, const pair<char, int>& b) {
+                                              return a.second < b.second;
+                                          });
+
+            char majorityBase = maxElement->first;
+            if (majorityBase == 'I') {
+                string insertedBases;
+                for (const auto& baseCount : baseCounts) {
+                    if (baseCount.first != 'I') {
+                        insertedBases += baseCount.first;
+                    }
+                }
+                outFile << "I," << pos << "," << insertedBases << "\n";
+            } else if (majorityBase == 'D') {
+                outFile << "D," << pos << ",-\n";
+            } else {
+                char refBase = refGenome[pos];
+                if (refBase != majorityBase) {
+                    outFile << "X," << pos << "," << majorityBase << "\n";
+                }
+            }
+        }
+    }
+
+    sam.close();
+    reference.close();
     outFile.close();
 }
 
+void convertSamToBam(const string& samFile, const string& bamFile) {
+    string samToBamCmd = "samtools view -bS " + samFile + " > " + bamFile;
+    cout << "Converting SAM to BAM: " << samToBamCmd << endl;
+    executeCommand(samToBamCmd);
+}
+
+void sortBamFile(const string& bamFile, const string& sortedBamFile) {
+    string sortCmd = "samtools sort -o " + sortedBamFile + " " + bamFile;
+    cout << "Sorting BAM file: " << sortCmd << endl;
+    executeCommand(sortCmd);
+}
+
+void indexBamFile(const string& bamFile) {
+    string indexCmd = "samtools index " + bamFile;
+    cout << "Indexing BAM file: " << indexCmd << endl;
+    executeCommand(indexCmd);
+}
+
+void runFreeBayes(const string& reference, const string& bamFile, const string& vcfOutput) {
+    string freebayesCmd = "freebayes -f " + reference + " " + bamFile + " > " + vcfOutput;
+    cout << "Running FreeBayes: " << freebayesCmd << endl;
+    executeCommand(freebayesCmd);
+}
 
 int main() {
-    // This is hard-coded for simplicity, but could be passed as command-line arguments
     string reference = "data/lambda.fasta";
-    string reads = "data/lambda_simulated_reads.fasta";
+    string reads = "data/lambda_mutated.fasta";
     string samOutput = "data/alignment.sam";
-    string pafOutput = "data/aligment2.paf";
     string bamOutput = "data/alignment.bam";
     string sortedBam = "data/alignment_sorted.bam";
     string csvOutput = "data/mutations.csv";
     string vcfOutput = "data/variants.vcf";
-    string indexCmd = "samtools faidx " + reference; // Command to generate index
-    // Define paths for marked BAM file and metrics file
-    string markedBam = "data/alignment_marked.bam"; 
-    string metricsFile = "data/mark_duplicates_metrics.txt"; 
-
 
     // Step 1: Run Minimap2
-    string minimapCmd = "minimap2 --eqx -c -ax map-ont " + reference + " " + reads + " > " + pafOutput;
-    cout << "Running Minimap2: " << minimapCmd << endl;
-    executeCommand(minimapCmd);
+    mapReadsWithMinimap2(reference, reads, samOutput);
 
+    cout << "Mapping completed. SAM file is stored in " << samOutput << endl;
 
-    // Step 2: Identify mutations from the PAF file
-    vector<Mutation> mutations = identifyMutationsFromPAF(pafOutput);
-    // Step 3: Write mutations to a CSV file
-    writeMutationsToCSV(mutations, csvOutput);
+    // Step 2: Detect mutations
+    detectMutations(samOutput, reference, csvOutput);
 
-    cout << "Mutations are written to " << csvOutput << endl;
+    cout << "Mutation detection completed. Results are stored in " << csvOutput << endl;
 
-    // // Step 2: Parse SAM file to detect mutations
-    // detectMutations(samOutput, csvOutput);
+    // Step 3: Convert SAM to BAM
+    convertSamToBam(samOutput, bamOutput);
 
-    // cout << "Mutation detection completed. Results are stored in " << csvOutput << endl;
+    // Step 4: Sort BAM file
+    sortBamFile(bamOutput, sortedBam);
 
-    // // Step 3: Generate index for the reference genome
-    // cout << "Generating index for the reference genome..." << endl;
-    // executeCommand(indexCmd); // Execute the command to generate index
+    // Step 5: Index BAM file
+    indexBamFile(sortedBam);
 
-    // // Step 4: Convert SAM to BAM
-    // string samToBamCmd = "samtools view -bS " + samOutput + " > " + bamOutput;
-    // cout << "Converting SAM to BAM: " << samToBamCmd << endl;
-    // executeCommand(samToBamCmd);
+    // Step 6: Run FreeBayes
+    runFreeBayes(reference, sortedBam, vcfOutput);
 
-    // // Step 5: Sort BAM file
-    // string sortCmd = "samtools sort -o " + sortedBam + " " + bamOutput;
-    // cout << "Sorting BAM file: " << sortCmd << endl;
-    // executeCommand(sortCmd);
+    cout << "Variant calling completed. Results are stored in " << vcfOutput << endl;
 
-    // // Step 6: Mark duplicates‚
-    // string markDuplicatesCmd = "picard MarkDuplicates I=" + sortedBam + " O=" + markedBam + " M=" + metricsFile + " REMOVE_DUPLICATES=true";
-    // cout << "Marking duplicates: " << markDuplicatesCmd << endl;
-    // executeCommand(markDuplicatesCmd);
-
-    // // Step 7: Index marked BAM file
-    // string indexMarkedCmd = "samtools index " + markedBam;
-    // cout << "Indexing marked BAM file: " << indexMarkedCmd << endl;
-    // executeCommand(indexMarkedCmd);
-
-
-    // // Step 8: Run FreeBayes for evaluation with optimization
-    // string freebayesCmd = "freebayes -f " + reference + " --use-best-n-alleles 4 --min-alternate-count 3 " + markedBam + " > " + vcfOutput;
-    // cout << "Running FreeBayes with optimization: " << freebayesCmd << endl;
-    // //executeCommand(freebayesCmd);
-
-
-
-    // cout << "Variant calling completed. Results are stored in " << vcfOutput << endl;
-    //  //inspect VCF file: bcftools view data/variants.vcf
- 
     return 0;
 }
