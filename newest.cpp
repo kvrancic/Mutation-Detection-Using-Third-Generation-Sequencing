@@ -8,16 +8,11 @@
 
 using namespace std;
 
-// Struktura za pohranu informacija iz SAM datoteke
 struct SamEntry {
-    string qname;
     int flag;
-    string rname;
     int pos;
-    int mapq;
     string cigar;
     string seq;
-    string qual;
 };
 
 // Funkcija za parsiranje SAM datoteke
@@ -33,9 +28,19 @@ vector<SamEntry> parseSamFile(const string& filename) {
     while (getline(infile, line)) {
         if (line[0] == '@') continue; // preskoči zaglavlja
 
-        SamEntry entry;
         istringstream iss(line);
-        iss >> entry.qname >> entry.flag >> entry.rname >> entry.pos >> entry.mapq >> entry.cigar >> entry.seq >> entry.qual;
+        string qname, rname, cigar, rnext, seq, qual;
+        int flag, pos, mapq, pnext, tlen;
+
+        iss >> qname >> flag >> rname >> pos >> mapq >> cigar >> rnext >> pnext >> tlen >> seq >> qual;
+
+        if (flag & 4) continue; // preskoči redove gde je FLAG 4
+
+        SamEntry entry;
+        entry.flag = flag;
+        entry.pos = pos;
+        entry.cigar = cigar;
+        entry.seq = seq;
 
         entries.push_back(entry);
     }
@@ -63,9 +68,18 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
         return;
     }
 
-    outfile << "type,X,pos,reference,read\n";
+    outfile << "type,X,pos,base\n";
 
-    int windowSize = 1; // širina prozora za provjeru poravnanja
+    struct MutationProposal {
+        int substitutionVotes;
+        char substitutionBase;
+        int insertionVotes;
+        string insertionBases;
+        int deletionVotes;
+        string deletionBases;
+    };
+
+    map<int, MutationProposal> mutationProposals;
 
     for (const auto& entry : samEntries) {
         int refPos = entry.pos - 1; // SAM format uses 1-based indexing
@@ -84,53 +98,26 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
 
             if (op == 'M') { // Match or mismatch
                 for (int i = 0; i < count; ++i) {
-                    if (refPos >= reference.size() || readPos >= readSeq.size()) {
-                        break;
+                    if (refPos >= 0 && refPos < reference.size() && readPos >= 0 && readPos < readSeq.size() &&
+                        reference[refPos] != readSeq[readPos]) {
+                        mutationProposals[refPos].substitutionVotes++;
+                        mutationProposals[refPos].substitutionBase = readSeq[readPos];
                     }
-
-                    if (reference[refPos] == readSeq[readPos]) {
-                        // Ako se poklapaju, idemo dalje
-                        ++refPos;
-                        ++readPos;
-                    } else {
-                        // Ako se ne poklapaju, proširujemo prozor i provjeravamo
-                        bool found = false;
-                        for (int w = 1; w <= windowSize; ++w) {
-                            // Provjera umetanja
-                            if (readPos + w < readSeq.size() && reference[refPos] == readSeq[readPos + w]) {
-                                outfile << "insertion,I," << refPos << "," << readSeq.substr(readPos, w) << "\n";
-                                readPos += w + 1; // Preskačemo umetnute elemente
-                                ++refPos;
-                                found = true;
-                                break;
-                            }
-                            // Provjera brisanja
-                            if (refPos + w < reference.size() && reference[refPos + w] == readSeq[readPos]) {
-                                outfile << "deletion,D," << refPos << "," << reference.substr(refPos, w) << "\n";
-                                refPos += w + 1; // Preskačemo obrisane elemente
-                                ++readPos;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            // Ako se ni jedna mutacija ne poklapa, bilježimo supstituciju
-                            outfile << "substitution,X," << refPos << "," << reference[refPos] << "," << readSeq[readPos] << "\n";
-                            ++refPos;
-                            ++readPos;
-                        }
-                    }
+                    ++refPos;
+                    ++readPos;
                 }
             } else if (op == 'I') { // Insertion
                 if (readPos >= 0 && readPos + count <= readSeq.size()) {
                     string insertedBases = readSeq.substr(readPos, count);
-                    outfile << "insertion,I," << refPos << "," << insertedBases << "\n";
+                    mutationProposals[refPos].insertionVotes++;
+                    mutationProposals[refPos].insertionBases = insertedBases;
                     readPos += count;
                 }
             } else if (op == 'D') { // Deletion
                 if (refPos >= 0 && refPos + count <= reference.size()) {
                     string deletedBases = reference.substr(refPos, count);
-                    outfile << "deletion,D," << refPos << "," << deletedBases << "\n";
+                    mutationProposals[refPos].deletionVotes++;
+                    mutationProposals[refPos].deletionBases = deletedBases;
                     refPos += count;
                 }
             } else if (op == 'S') { // Soft clipping
@@ -138,6 +125,21 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
             } else if (op == 'H') { // Hard clipping
                 continue;
             }
+        }
+    }
+
+    // Većinsko glasanje za svaku poziciju
+    for (auto& proposal : mutationProposals) {
+        int pos = proposal.first;
+        MutationProposal& votes = proposal.second;
+
+        int maxVotes = max({votes.substitutionVotes, votes.insertionVotes, votes.deletionVotes});
+        if (maxVotes == votes.substitutionVotes && votes.substitutionBase != reference[pos]) {
+            outfile << "substitution,X," << pos << "," << votes.substitutionBase << "\n";
+        } else if (maxVotes == votes.insertionVotes) {
+            outfile << "insertion,I," << pos << "," << votes.insertionBases << "\n";
+        } else if (maxVotes == votes.deletionVotes) {
+            outfile << "deletion,D," << pos << "," << votes.deletionBases << "\n";
         }
     }
 
