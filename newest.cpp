@@ -15,13 +15,13 @@ struct SamEntry {
     string seq;
 };
 
-// Funkcija za ispis vektora char-ova
-ostream& operator<<(ostream& os, const vector<char>& vec) {
-    for (char c : vec) {
-        os << c;
-    }
-    return os;
-}
+// // Funkcija za ispis vektora char-ova
+// ostream& operator<<(ostream& os, const vector<char>& vec) {
+//     for (char c : vec) {
+//         os << c;
+//     }
+//     return os;
+// }
 
 // Funkcija za ispis vektora stringova
 // ostream& operator<<(ostream& os, const vector<string>& vec) {
@@ -84,15 +84,26 @@ struct MutationProposal {
     vector<string> insertionBases;
     int deletionVotes = 0;
     vector<string> deletionBases;
+    int noneVotes = 0;
 };
 
 // fja za dodavanje na sve pozicije a ne samo pocetnu
-void addMutationProposal(map<int, MutationProposal>& mutationProposals, int startPos, int count, char mutationType, const string& bases) {
+void addMutationProposal(map<int, MutationProposal>& mutationProposals, int startPos, int count, char mutationType, const string& bases, const string& reference) {
     for (int i = 0; i < count; ++i) {
         int pos = startPos + i;
         if (mutationType == 'M') {
-            mutationProposals[pos].substitutionVotes++;
-            mutationProposals[pos].substitutionBases.push_back(bases[i]);
+            //cout << " baza" << reference[pos] << " i " <<  bases[i] << "daju " <<(reference[pos] == bases[i])<< endl;
+            // Ako je baza u referentnom genomu ista kao baza u očitanom, povećaj noneVotes
+            if (pos < reference.size()) {
+            
+                if (reference[pos] == bases[i]){
+                mutationProposals[pos].noneVotes++;
+                }
+            else {
+                mutationProposals[pos].substitutionVotes++;
+                mutationProposals[pos].substitutionBases.push_back(bases[i]);
+            }
+            }
         } else if (mutationType == 'I') {
             mutationProposals[pos].insertionVotes++;
             mutationProposals[pos].insertionBases.push_back(bases.substr(i, 1));
@@ -124,7 +135,7 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
             // Reverzni komplement, preokreni sekvencu
             reverse(readSeq.begin(), readSeq.end());
         }
-
+        bool first= true;
         auto cigarOperations = parseCigar(entry.cigar);
         for (const auto& op_count : cigarOperations) {
             char op = op_count.first;
@@ -132,9 +143,12 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
 
             if (op == 'M') { // Match or mismatch
                 for (int i = 0; i < count; ++i) {
-                    if (refPos >= 0 && refPos < reference.size() && readPos >= 0 && readPos < readSeq.size() &&
-                        reference[refPos] != readSeq[readPos]) {
-                        addMutationProposal(mutationProposals, refPos, 1, 'M', string(1, readSeq[readPos]));
+                    if (refPos >= 0 && refPos < reference.size() && readPos >= 0 && readPos < readSeq.size()) {
+                        char refBase = reference[refPos];
+                        char readBase = readSeq[readPos];
+            
+                        addMutationProposal(mutationProposals, refPos, 1, 'M', string(1, readSeq[readPos]), reference);
+    
                     }
                     ++refPos;
                     ++readPos;
@@ -142,17 +156,17 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
             } else if (op == 'I') { // Insertion
                 if (readPos >= 0 && readPos + count <= readSeq.size()) {
                     string insertedBases = readSeq.substr(readPos, count);
-                    addMutationProposal(mutationProposals, refPos, 1, 'I', insertedBases);
+                    addMutationProposal(mutationProposals, refPos, 1, 'I', insertedBases, reference);
                     readPos += count;
                 }
             } else if (op == 'D') { // Deletion
                 if (refPos >= 0 && refPos + count <= reference.size()) {
                     string deletedBases = reference.substr(refPos, count);
-                    addMutationProposal(mutationProposals, refPos, count, 'D', deletedBases);
+                    addMutationProposal(mutationProposals, refPos, count, 'D', deletedBases, reference);
                     refPos += count;
                 }
             } else if (op == 'S') { // Soft clipping
-                                readPos += count;
+                readPos += count;
             } else if (op == 'H') { // Hard clipping
                 continue;
             }
@@ -210,15 +224,20 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
         } else {
             base = mostCommonDeletionBase.empty() ? '-' : mostCommonDeletionBase[0];
         }
-
+        bool prvi = true;
         // Ispis rezultata
         if (base != ' ') {
-            if (votes.substitutionVotes >= votes.insertionVotes && votes.substitutionVotes >= votes.deletionVotes) {
-                outfile << "substitution,X," << pos << "," << base << "\n";
-            } else if (votes.insertionVotes >= votes.substitutionVotes && votes.insertionVotes >= votes.deletionVotes) {
+            if (votes.noneVotes >= votes.substitutionVotes && votes.noneVotes >= votes.insertionVotes && votes.noneVotes >= votes.deletionVotes){
+                continue;
+            }
+            else if (votes.substitutionVotes >= votes.insertionVotes && votes.substitutionVotes >= votes.deletionVotes && votes.substitutionVotes >= votes.noneVotes) {
+                    outfile << "substitution,X," << pos << "," << base << "\n";
+
+            } else if (votes.insertionVotes >= votes.substitutionVotes && votes.insertionVotes >= votes.deletionVotes && votes.insertionVotes >= votes.noneVotes) {
                 outfile << "insertion,I," << pos << "," << base << "\n";
-            } else {
+            } else { 
                 outfile << "deletion,D," << pos << "," << base << "\n";
+
             }
         }
     }
