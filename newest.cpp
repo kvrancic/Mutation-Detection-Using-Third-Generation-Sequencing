@@ -55,9 +55,36 @@ vector<pair<char, int>> parseCigar(const string& cigar) {
     char op;
     int count;
     while (iss >> count >> op) {
-        operations.push_back({op, count});
+        operations.push_back(std::make_pair(op, count));
     }
     return operations;
+}
+
+// Struktura za predloge mutacija
+struct MutationProposal {
+    int substitutionVotes = 0;
+    char substitutionBase = ' ';
+    int insertionVotes = 0;
+    string insertionBases = "";
+    int deletionVotes = 0;
+    string deletionBases = "";
+};
+
+// fja za dodavanje na sve pozicije a ne samo pocetnu
+void addMutationProposal(map<int, MutationProposal>& mutationProposals, int startPos, int count, char mutationType, const string& bases) {
+    for (int i = 0; i < count; ++i) {
+        int pos = startPos + i;
+        if (mutationType == 'M') { 
+            mutationProposals[pos].substitutionVotes++;
+            mutationProposals[pos].substitutionBase = bases[i];
+        } else if (mutationType == 'I') { 
+            mutationProposals[pos].insertionVotes++;
+            mutationProposals[pos].insertionBases = bases;
+        } else if (mutationType == 'D') { 
+            mutationProposals[pos].deletionVotes++;
+            mutationProposals[pos].deletionBases = bases;
+        }
+    }
 }
 
 // Funkcija za detekciju mutacija
@@ -69,15 +96,6 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
     }
 
     outfile << "type,X,pos,base\n";
-
-    struct MutationProposal {
-        int substitutionVotes;
-        char substitutionBase;
-        int insertionVotes;
-        string insertionBases;
-        int deletionVotes;
-        string deletionBases;
-    };
 
     map<int, MutationProposal> mutationProposals;
 
@@ -100,8 +118,7 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
                 for (int i = 0; i < count; ++i) {
                     if (refPos >= 0 && refPos < reference.size() && readPos >= 0 && readPos < readSeq.size() &&
                         reference[refPos] != readSeq[readPos]) {
-                        mutationProposals[refPos].substitutionVotes++;
-                        mutationProposals[refPos].substitutionBase = readSeq[readPos];
+                        addMutationProposal(mutationProposals, refPos, 1, 'M', string(1, readSeq[readPos]));
                     }
                     ++refPos;
                     ++readPos;
@@ -109,15 +126,13 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
             } else if (op == 'I') { // Insertion
                 if (readPos >= 0 && readPos + count <= readSeq.size()) {
                     string insertedBases = readSeq.substr(readPos, count);
-                    mutationProposals[refPos].insertionVotes++;
-                    mutationProposals[refPos].insertionBases = insertedBases;
+                    addMutationProposal(mutationProposals, refPos, 1, 'I', insertedBases);
                     readPos += count;
                 }
             } else if (op == 'D') { // Deletion
                 if (refPos >= 0 && refPos + count <= reference.size()) {
                     string deletedBases = reference.substr(refPos, count);
-                    mutationProposals[refPos].deletionVotes++;
-                    mutationProposals[refPos].deletionBases = deletedBases;
+                    addMutationProposal(mutationProposals, refPos, count, 'D', deletedBases);
                     refPos += count;
                 }
             } else if (op == 'S') { // Soft clipping
@@ -147,9 +162,9 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
 }
 
 int main() {
-    string samFile = "minimap_output.sam";
-    string referenceFile = "lambda.fasta";
-    string outputCsv = "mutations.csv";
+    string samFile = "data/minimap_output.sam";
+    string referenceFile = "data/lambda.fasta";
+    string outputCsv = "data/mutations.csv";
 
     // Parsiraj SAM datoteku
     vector<SamEntry> samEntries = parseSamFile(samFile);
