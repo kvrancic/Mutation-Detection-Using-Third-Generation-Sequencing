@@ -1,2 +1,6 @@
 data/
 detector
+.fasta
+.sam 
+.fai
+.exe

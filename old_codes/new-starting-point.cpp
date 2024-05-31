@@ -8,16 +8,11 @@
 
 using namespace std;
 
-// Struktura za pohranu informacija iz SAM datoteke
 struct SamEntry {
-    string qname;
     int flag;
-    string rname;
     int pos;
-    int mapq;
     string cigar;
     string seq;
-    string qual;
 };
 
 // Funkcija za parsiranje SAM datoteke
@@ -33,9 +28,19 @@ vector<SamEntry> parseSamFile(const string& filename) {
     while (getline(infile, line)) {
         if (line[0] == '@') continue; // preskoči zaglavlja
 
-        SamEntry entry;
         istringstream iss(line);
-        iss >> entry.qname >> entry.flag >> entry.rname >> entry.pos >> entry.mapq >> entry.cigar >> entry.seq >> entry.qual;
+        string qname, rname, cigar, rnext, seq, qual;
+        int flag, pos, mapq, pnext, tlen;
+
+        iss >> qname >> flag >> rname >> pos >> mapq >> cigar >> rnext >> pnext >> tlen >> seq >> qual;
+
+        if (flag & 4) continue; // preskoči redove gde je FLAG 4
+
+        SamEntry entry;
+        entry.flag = flag;
+        entry.pos = pos;
+        entry.cigar = cigar;
+        entry.seq = seq;
 
         entries.push_back(entry);
     }
@@ -73,6 +78,36 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
         int refPos = entry.pos - 1; // SAM format uses 1-based indexing
         int readPos = 0;
         string readSeq = entry.seq;
+
+        // add value of first soft clipping (it is always the first element of cigar) to readPos
+        int firstSoftClipping = 0;
+        istringstream iss(entry.cigar);
+        iss >> firstSoftClipping;
+
+        cout << "Current soft clipping: " << firstSoftClipping << endl;
+
+        
+        // Ispis trenutne sekvence (prvih 50 znakova) 
+        cout << "Read: ";
+        for (int i = 0; i < 50; ++i) {
+            if (readPos + i < readSeq.size()) {
+                cout << readSeq[readPos + firstSoftClipping + i];
+            }
+        }
+
+        cout << endl;
+        
+        vector<char> refOutput =  vector<char>(reference.begin() + refPos, reference.begin() + refPos + 50);
+        
+        cout << "Reference: ";
+        for (char c : refOutput) {
+            cout << c;
+        }
+
+        cout << endl;
+
+
+
 
         if (entry.flag & 16) {
             // Reverzni komplement, preokreni sekvencu
