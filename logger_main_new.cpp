@@ -121,7 +121,7 @@ map<pair<int, int>, SamEntry, ComparePositions> getAffectedEntries(const map<pai
 
 void adjustSequences(map<pair<int, int>, SamEntry, ComparePositions>& affectedEntries, int currentPosition, char majorityOp, char majorityBase, const string& reference) {
     for (auto& entry : affectedEntries) {
-        int refPos = entry.first.first; 
+        int seqPos = entry.first.first; //SEKV POCETAK
         string& readSeq = entry.second.seq;
         char refBase = reference[currentPosition];
 
@@ -133,8 +133,11 @@ void adjustSequences(map<pair<int, int>, SamEntry, ComparePositions>& affectedEn
 
             char cigarOp = op_count.first;
             int count = op_count.second;
-            refPos += count;
-            if(refPos >= currentPosition){
+            if (cigarOp != 'D'){
+               seqPos += count;
+
+                }
+            if(seqPos >= currentPosition){
                 if(cigarOp != 'S'){
                     if (majorityOp == 'I') {
                                 if (cigarOp == 'M') {
@@ -225,7 +228,10 @@ void detectMutations(map<pair<int, int>, SamEntry, ComparePositions>& sortedSamE
             for (const auto& op_count : cigarOperations) {
                 char cigarOp = op_count.first;
                 int count = op_count.second;
+                if (cigarOp != 'D'){
                 localReadPos += count; 
+
+                }
                 if(localReadPos >= currentPosition){
                     // presli smo poziciju znaci da je to ta cigar operacija
                     if(cigarOp == 'S'){
@@ -321,12 +327,13 @@ int main() {
         int startPos = entry.pos;
         int endPos = startPos;
 
-        auto cigarOperations = parseCigar(entry.cigar);
+        auto cigarOperations = parseCigar(entry.cigar); //za brisanje ne
         for (const auto& op_count : cigarOperations) {
             char op = op_count.first;
             int count = op_count.second;
+            if(op != 'D'){
             endPos += count; 
-            
+            }
         }
 
         samEntryMap[{startPos, endPos}] = entry;
