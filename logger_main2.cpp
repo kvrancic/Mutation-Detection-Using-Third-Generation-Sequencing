@@ -108,7 +108,7 @@ void addMutationProposal(map<int, MutationProposal>& mutationProposals, int pos,
             << ", noneVotes: " << mutationProposals[pos].noneVotes << "}" << endl;
 }
 
-//fja koja gleda koji su mi samentry ukljuceni za tu poziciju
+//fja koja gleda koji su mi samentry ukljuceni za tu poziciju, dugo se vrti moozda ako sljedecei nije ukljucena  nije prazna break?
 map<pair<int, int>, SamEntry, ComparePositions> getAffectedEntries(const map<pair<int, int>, SamEntry, ComparePositions>& sortedSamEntryMap, int currentPosition) {
     map<pair<int, int>, SamEntry, ComparePositions> affectedEntries;
     for (const auto& entry : sortedSamEntryMap) {
@@ -125,10 +125,12 @@ void adjustSequences(map<pair<int, int>, SamEntry, ComparePositions>& affectedEn
         string& readSeq = entry.second.seq;
         char refBase = reference[currentPosition];
 
-        int localRefPos = refPos;
-        int readIndex = 0;
+        //int localRefPos = refPos;
+        //int readIndex = currentPosition - refPos;
         auto cigarOperations = parseCigar(entry.second.cigar);
         for (const auto& op_count : cigarOperations) {
+            int readIndex = currentPosition - entry.first.first;
+
             char cigarOp = op_count.first;
             int count = op_count.second;
             refPos += count;
