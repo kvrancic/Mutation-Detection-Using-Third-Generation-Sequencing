@@ -121,7 +121,7 @@ map<pair<int, int>, SamEntry, ComparePositions> getAffectedEntries(const map<pai
 
 void adjustSequences(map<pair<int, int>, SamEntry, ComparePositions>& affectedEntries, int currentPosition, char majorityOp, char majorityBase, const string& reference) {
     for (auto& entry : affectedEntries) {
-        int refPos = entry.second.pos - 1; 
+        int refPos = entry.first.first; 
         string& readSeq = entry.second.seq;
         char refBase = reference[currentPosition];
 
@@ -131,55 +131,52 @@ void adjustSequences(map<pair<int, int>, SamEntry, ComparePositions>& affectedEn
         for (const auto& op_count : cigarOperations) {
             char cigarOp = op_count.first;
             int count = op_count.second;
-
-            if (cigarOp == 'M' || cigarOp == 'I' || cigarOp == 'D') {
-                for (int i = 0; i < count; ++i) {
-                    if (localRefPos == currentPosition) {
-                        if (cigarOp != majorityOp) {
-                            if (majorityOp == 'I') {
+            refPos += count;
+            if(refPos >= currentPosition){
+                if(cigarOp != 'S'){
+                    if (majorityOp == 'I') {
                                 if (cigarOp == 'M') {
                                     readSeq.insert(readIndex, 1, majorityBase);
+                                    return;
                                 } else if (cigarOp == 'D') {
-                                    readSeq.insert(readIndex, 1, refBase);
+                                    readSeq.insert(readIndex, 1, refBase); //za ovo nisam sigurna
                                     readSeq.insert(readIndex, 1, majorityBase);
+                                    return;
+                                } else{
+                                    return;
                                 }
-                            } else if (majorityOp == 'D') {
+                    } else if (majorityOp == 'D') {
                                 if (cigarOp == 'M') {
                                     readSeq.erase(readIndex, 1);
+                                    return;
                                 } else if (cigarOp == 'I') {
                                     if (readIndex < readSeq.size() - 1) {
                                         readSeq.erase(readIndex, 2);
+                                        return;
                                     }
+                                } else {
+                                    return;
                                 }
-                            } else if (majorityOp == 'M') {
+                    } else if (majorityOp == 'M') {
+                                if(majorityBase == ' '){ //tad imam match
+                                    majorityBase = refBase;
+                                }
                                 if (cigarOp == 'I') {
                                     if (readIndex < readSeq.size()) {
                                         readSeq.erase(readIndex, 1);
+                                        return;
                                     }
                                 } else if (cigarOp == 'D') {
                                     readSeq.insert(readIndex, 1, majorityBase);
+                                    return;
+                                } else{
+                                    return;
                                 }
                             }
-                            else if (majorityOp == '=') {
-                                if (cigarOp == 'I') {
-                                    if (readIndex < readSeq.size()) {
-                                        readSeq.erase(readIndex, 1);
-                                    }
-                                } else if (cigarOp == 'D') {
-                                    readSeq.insert(readIndex, 1, refBase);
-                                }
-                            }
-                        }
-                        break;
-                    }
-                    if (cigarOp != 'D') {
-                        ++readIndex;
-                    }
-                    ++localRefPos;
+                } else{
+                    return;
                 }
-            }
-            if (localRefPos > currentPosition) {
-                break;
+
             }
         }
     }
@@ -210,7 +207,7 @@ void detectMutations(map<pair<int, int>, SamEntry, ComparePositions>& sortedSamE
         }
 
         for (const auto& entry : affectedEntries) {
-            int refPos = entry.second.pos - 1;
+            //int refPos = entry.second.pos; // - 1;
             string readSeq = entry.second.seq;
 
             if (entry.second.flag & 16) {
@@ -218,7 +215,7 @@ void detectMutations(map<pair<int, int>, SamEntry, ComparePositions>& sortedSamE
             }
 
             auto cigarOperations = parseCigar(entry.second.cigar);
-            int localRefPos = refPos;
+            //int localRefPos = refPos;
             int localReadPos = entry.first.first;
             char op = ' ';
             char base = ' ';
@@ -244,15 +241,17 @@ void detectMutations(map<pair<int, int>, SamEntry, ComparePositions>& sortedSamE
         }
         }
 
-        if (mutationProposals.find(currentPosition) != mutationProposals.end()) {
+        if (mutationProposals[currentPosition].noneVotes > 0 || mutationProposals[currentPosition].substitutionVotes > 0
+        || mutationProposals[currentPosition].deletionVotes > 0 || mutationProposals[currentPosition].insertionVotes > 0) {
             const MutationProposal& votes = mutationProposals[currentPosition];
+            bool noneAction = false;
             string type;
             char base = ' ';
-             if (mutationProposals[currentPosition].noneVotes > 0 || mutationProposals[currentPosition].substitutionVotes > 0
-        || mutationProposals[currentPosition].deletionVotes > 0 || mutationProposals[currentPosition].insertionVotes > 0) {
-            //if (votes.noneVotes >= votes.substitutionVotes && votes.noneVotes >= votes.insertionVotes && votes.noneVotes >= votes.deletionVotes) {
-                //MORAM RADIT I POMICANJE I AKO NONE
-                //adjustSequences(affectedEntries, currentPosition, 'M', base, reference);
+            if (votes.noneVotes >= votes.substitutionVotes && votes.noneVotes >= votes.insertionVotes && votes.noneVotes >= votes.deletionVotes) {
+                //baza je ona na ref
+                //base = reference[currentPosition];
+                adjustSequences(affectedEntries, currentPosition, 'M', base, reference);
+                noneAction = true;
                 continue; // nema mutacija
             } else if (votes.substitutionVotes >= votes.insertionVotes && votes.substitutionVotes >= votes.deletionVotes) {
                 if (!votes.substitutionBases.empty()) {
@@ -294,7 +293,7 @@ void detectMutations(map<pair<int, int>, SamEntry, ComparePositions>& sortedSamE
                 continue;
             }
 
-            if (base != ' ') {
+            if (base != ' ' && noneAction == false) {
                 outfile << type << "," << (type == "insertion" ? "I" : (type == "deletion" ? "D" : "X")) << "," << currentPosition << "," << base << "\n";
             }
         }
