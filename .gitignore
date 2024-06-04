@@ -3,4 +3,4 @@ detector
 .fasta
 .sam 
 .fai
-.exe
+mutation_detection_log.txt

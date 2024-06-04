@@ -1,0 +1,582 @@
+Evaluation Log
+====================
+Checking reference result: X,627,T
+  Found matching position in my results: X,627,T
+    All match: +3 points
+Checking reference result: X,726,A
+  No matching position in my results
+Checking reference result: D,1043,-
+  Found matching position in my results: D,1043,-
+    All match: +3 points
+Checking reference result: I,1329,A
+  No matching position in my results
+Checking reference result: X,1536,C
+  Found matching position in my results: X,1536,C
+    All match: +3 points
+Checking reference result: X,1702,T
+  Found matching position in my results: X,1702,T
+    All match: +3 points
+Checking reference result: X,1706,A
+  Found matching position in my results: X,1706,A
+    All match: +3 points
+Checking reference result: I,2100,G
+  No matching position in my results
+Checking reference result: I,2286,C
+  No matching position in my results
+Checking reference result: X,2795,T
+  Found matching position in my results: X,2795,T
+    All match: +3 points
+Checking reference result: D,2918,-
+  Found matching position in my results: D,2918,-
+    All match: +3 points
+Checking reference result: X,3211,C
+  Found matching position in my results: X,3211,C
+    All match: +3 points
+Checking reference result: I,3306,C
+  Found matching position in my results: I,3306,C
+    All match: +3 points
+Checking reference result: I,3457,T
+  Found matching position in my results: I,3457,T
+    All match: +3 points
+Checking reference result: X,3501,T
+  Found matching position in my results: X,3501,T
+    All match: +3 points
+Checking reference result: D,3626,-
+  Found matching position in my results: D,3626,-
+    All match: +3 points
+Checking reference result: X,3681,T
+  Found matching position in my results: X,3681,T
+    All match: +3 points
+Checking reference result: X,3895,G
+  Found matching position in my results: X,3895,G
+    All match: +3 points
+Checking reference result: D,3921,-
+  Found matching position in my results: D,3921,-
+    All match: +3 points
+Checking reference result: X,4057,T
+  Found matching position in my results: X,4057,T
+    All match: +3 points
+Checking reference result: X,4074,G
+  Found matching position in my results: X,4074,G
+    All match: +3 points
+Checking reference result: X,4142,T
+  Found matching position in my results: X,4142,A
+    Type match, but base mismatch: +2 points
+Checking reference result: I,4185,G
+  Found matching position in my results: I,4185,G
+    All match: +3 points
+Checking reference result: I,4488,C
+  No matching position in my results
+Checking reference result: X,4748,C
+  Found matching position in my results: X,4748,C
+    All match: +3 points
+Checking reference result: I,4850,C
+  Found matching position in my results: I,4850,C
+    All match: +3 points
+Checking reference result: X,4867,A
+  Found matching position in my results: X,4867,A
+    All match: +3 points
+Checking reference result: X,5793,A
+  Found matching position in my results: X,5793,A
+    All match: +3 points
+Checking reference result: D,6197,-
+  Found matching position in my results: D,6197,-
+    All match: +3 points
+Checking reference result: X,6399,A
+  Found matching position in my results: X,6399,A
+    All match: +3 points
+Checking reference result: X,6885,C
+  Found matching position in my results: X,6885,C
+    All match: +3 points
+Checking reference result: D,7019,-
+  Found matching position in my results: D,7019,-
+    All match: +3 points
+Checking reference result: I,7102,G
+  No matching position in my results
+Checking reference result: X,7115,T
+  Found matching position in my results: X,7115,T
+    All match: +3 points
+Checking reference result: X,7184,A
+  Found matching position in my results: X,7184,A
+    All match: +3 points
+Checking reference result: X,7448,A
+  Found matching position in my results: X,7448,A
+    All match: +3 points
+Checking reference result: D,7595,-
+  Found matching position in my results: D,7595,-
+    All match: +3 points
+Checking reference result: X,7656,C
+  Found matching position in my results: X,7656,C
+    All match: +3 points
+Checking reference result: X,7675,C
+  Found matching position in my results: X,7675,C
+    All match: +3 points
+Checking reference result: D,7891,-
+  Found matching position in my results: D,7891,-
+    All match: +3 points
+Checking reference result: X,8088,G
+  Found matching position in my results: X,8088,G
+    All match: +3 points
+Checking reference result: I,8242,G
+  No matching position in my results
+Checking reference result: X,8493,C
+  Found matching position in my results: X,8493,C
+    All match: +3 points
+Checking reference result: X,8770,T
+  Found matching position in my results: X,8770,T
+    All match: +3 points
+Checking reference result: X,9437,G
+  Found matching position in my results: X,9437,G
+    All match: +3 points
+Checking reference result: X,9577,T
+  Found matching position in my results: X,9577,T
+    All match: +3 points
+Checking reference result: D,9696,-
+  Found matching position in my results: D,9696,-
+    All match: +3 points
+Checking reference result: D,10054,-
+  Found matching position in my results: D,10054,-
+    All match: +3 points
+Checking reference result: X,10109,C
+  Found matching position in my results: X,10109,C
+    All match: +3 points
+Checking reference result: X,10750,A
+  Found matching position in my results: X,10750,A
+    All match: +3 points
+Checking reference result: X,10957,A
+  Found matching position in my results: X,10957,A
+    All match: +3 points
+Checking reference result: D,10962,-
+  Found matching position in my results: D,10962,-
+    All match: +3 points
+Checking reference result: I,11766,T
+  Found matching position in my results: I,11766,T
+    All match: +3 points
+Checking reference result: I,12173,T
+  Found matching position in my results: I,12173,T
+    All match: +3 points
+Checking reference result: X,12265,G
+  Found matching position in my results: X,12265,G
+    All match: +3 points
+Checking reference result: X,12496,C
+  Found matching position in my results: X,12496,C
+    All match: +3 points
+Checking reference result: X,12712,G
+  Found matching position in my results: X,12712,G
+    All match: +3 points
+Checking reference result: X,12893,T
+  Found matching position in my results: X,12893,T
+    All match: +3 points
+Checking reference result: X,13151,A
+  Found matching position in my results: X,13151,A
+    All match: +3 points
+Checking reference result: X,13746,G
+  Found matching position in my results: X,13746,G
+    All match: +3 points
+Checking reference result: X,14770,T
+  Found matching position in my results: X,14770,T
+    All match: +3 points
+Checking reference result: I,14828,C
+  Found matching position in my results: I,14828,C
+    All match: +3 points
+Checking reference result: I,14953,T
+  Found matching position in my results: I,14953,T
+    All match: +3 points
+Checking reference result: D,15006,-
+  Found matching position in my results: D,15006,-
+    All match: +3 points
+Checking reference result: I,15053,A
+  Found matching position in my results: I,15053,A
+    All match: +3 points
+Checking reference result: D,15236,-
+  Found matching position in my results: D,15236,-
+    All match: +3 points
+Checking reference result: X,15570,G
+  Found matching position in my results: X,15570,G
+    All match: +3 points
+Checking reference result: X,15576,C
+  Found matching position in my results: X,15576,C
+    All match: +3 points
+Checking reference result: I,15670,A
+  Found matching position in my results: I,15670,A
+    All match: +3 points
+Checking reference result: X,16102,T
+  Found matching position in my results: X,16102,T
+    All match: +3 points
+Checking reference result: X,16185,A
+  Found matching position in my results: X,16185,A
+    All match: +3 points
+Checking reference result: X,16348,G
+  Found matching position in my results: X,16348,G
+    All match: +3 points
+Checking reference result: X,16360,T
+  Found matching position in my results: X,16360,T
+    All match: +3 points
+Checking reference result: D,16419,-
+  No matching position in my results
+Checking reference result: I,16637,C
+  Found matching position in my results: I,16637,C
+    All match: +3 points
+Checking reference result: X,16812,A
+  Found matching position in my results: X,16812,A
+    All match: +3 points
+Checking reference result: D,16989,-
+  Found matching position in my results: D,16989,-
+    All match: +3 points
+Checking reference result: X,17630,G
+  Found matching position in my results: X,17630,G
+    All match: +3 points
+Checking reference result: X,18443,G
+  Found matching position in my results: X,18443,G
+    All match: +3 points
+Checking reference result: X,18480,G
+  Found matching position in my results: X,18480,G
+    All match: +3 points
+Checking reference result: D,18652,-
+  No matching position in my results
+Checking reference result: X,19041,T
+  Found matching position in my results: X,19041,T
+    All match: +3 points
+Checking reference result: I,20154,A
+  Found matching position in my results: I,20154,A
+    All match: +3 points
+Checking reference result: I,20281,T
+  No matching position in my results
+Checking reference result: X,20716,T
+  Found matching position in my results: X,20716,T
+    All match: +3 points
+Checking reference result: X,20763,C
+  Found matching position in my results: X,20763,C
+    All match: +3 points
+Checking reference result: X,21828,T
+  Found matching position in my results: X,21828,T
+    All match: +3 points
+Checking reference result: X,21989,C
+  Found matching position in my results: X,21989,C
+    All match: +3 points
+Checking reference result: X,22528,G
+  Found matching position in my results: X,22528,G
+    All match: +3 points
+Checking reference result: I,22686,T
+  No matching position in my results
+Checking reference result: I,23057,A
+  Found matching position in my results: I,23057,A
+    All match: +3 points
+Checking reference result: I,23378,A
+  No matching position in my results
+Checking reference result: X,23468,C
+  Found matching position in my results: X,23468,C
+    All match: +3 points
+Checking reference result: D,23515,-
+  No matching position in my results
+Checking reference result: I,23581,G
+  Found matching position in my results: I,23581,G
+    All match: +3 points
+Checking reference result: D,24221,-
+  No matching position in my results
+Checking reference result: X,24276,G
+  Found matching position in my results: X,24276,G
+    All match: +3 points
+Checking reference result: D,24478,-
+  Found matching position in my results: D,24478,-
+    All match: +3 points
+Checking reference result: X,25221,A
+  Found matching position in my results: X,25221,A
+    All match: +3 points
+Checking reference result: D,25292,-
+  No matching position in my results
+Checking reference result: D,26451,-
+  No matching position in my results
+Checking reference result: X,26581,C
+  Found matching position in my results: X,26581,C
+    All match: +3 points
+Checking reference result: X,26646,C
+  Found matching position in my results: X,26646,C
+    All match: +3 points
+Checking reference result: X,26664,C
+  Found matching position in my results: X,26664,C
+    All match: +3 points
+Checking reference result: X,27049,G
+  Found matching position in my results: X,27049,G
+    All match: +3 points
+Checking reference result: X,27055,T
+  Found matching position in my results: X,27055,T
+    All match: +3 points
+Checking reference result: D,27331,-
+  Found matching position in my results: D,27331,-
+    All match: +3 points
+Checking reference result: X,27332,A
+  Found matching position in my results: X,27332,A
+    All match: +3 points
+Checking reference result: X,27869,C
+  Found matching position in my results: X,27869,C
+    All match: +3 points
+Checking reference result: X,27945,T
+  Found matching position in my results: X,27945,T
+    All match: +3 points
+Checking reference result: D,28192,-
+  Found matching position in my results: D,28192,-
+    All match: +3 points
+Checking reference result: X,28234,G
+  Found matching position in my results: X,28234,G
+    All match: +3 points
+Checking reference result: D,28392,-
+  Found matching position in my results: D,28392,-
+    All match: +3 points
+Checking reference result: X,28568,A
+  Found matching position in my results: X,28568,A
+    All match: +3 points
+Checking reference result: I,28577,C
+  No matching position in my results
+Checking reference result: X,28602,T
+  Found matching position in my results: X,28602,T
+    All match: +3 points
+Checking reference result: X,28606,T
+  Found matching position in my results: X,28606,T
+    All match: +3 points
+Checking reference result: I,28688,G
+  Found matching position in my results: I,28688,G
+    All match: +3 points
+Checking reference result: I,28707,C
+  Found matching position in my results: I,28707,C
+    All match: +3 points
+Checking reference result: I,28762,A
+  Found matching position in my results: I,28762,A
+    All match: +3 points
+Checking reference result: D,28915,-
+  No matching position in my results
+Checking reference result: X,29048,A
+  Found matching position in my results: X,29048,A
+    All match: +3 points
+Checking reference result: I,29192,A
+  Found matching position in my results: I,29192,A
+    All match: +3 points
+Checking reference result: I,29194,T
+  Found matching position in my results: I,29194,T
+    All match: +3 points
+Checking reference result: X,29697,C
+  Found matching position in my results: X,29697,C
+    All match: +3 points
+Checking reference result: D,29977,-
+  Found matching position in my results: D,29977,-
+    All match: +3 points
+Checking reference result: X,30246,A
+  Found matching position in my results: X,30246,A
+    All match: +3 points
+Checking reference result: X,30787,G
+  Found matching position in my results: X,30787,G
+    All match: +3 points
+Checking reference result: I,31469,C
+  No matching position in my results
+Checking reference result: I,31493,T
+  No matching position in my results
+Checking reference result: X,31555,T
+  Found matching position in my results: X,31555,T
+    All match: +3 points
+Checking reference result: X,31663,G
+  Found matching position in my results: X,31663,G
+    All match: +3 points
+Checking reference result: D,31984,-
+  Found matching position in my results: D,31984,-
+    All match: +3 points
+Checking reference result: I,32080,G
+  Found matching position in my results: I,32080,G
+    All match: +3 points
+Checking reference result: X,32149,C
+  Found matching position in my results: X,32149,C
+    All match: +3 points
+Checking reference result: X,32582,A
+  Found matching position in my results: X,32582,A
+    All match: +3 points
+Checking reference result: X,32854,A
+  Found matching position in my results: X,32854,A
+    All match: +3 points
+Checking reference result: D,33177,-
+  No matching position in my results
+Checking reference result: X,33186,A
+  Found matching position in my results: X,33186,A
+    All match: +3 points
+Checking reference result: X,33403,C
+  Found matching position in my results: X,33403,C
+    All match: +3 points
+Checking reference result: X,33522,C
+  Found matching position in my results: X,33522,C
+    All match: +3 points
+Checking reference result: X,33823,G
+  Found matching position in my results: X,33823,G
+    All match: +3 points
+Checking reference result: X,33965,A
+  Found matching position in my results: X,33965,A
+    All match: +3 points
+Checking reference result: X,34934,G
+  Found matching position in my results: X,34934,G
+    All match: +3 points
+Checking reference result: X,35049,C
+  Found matching position in my results: X,35049,C
+    All match: +3 points
+Checking reference result: X,35157,C
+  Found matching position in my results: X,35157,C
+    All match: +3 points
+Checking reference result: X,35268,C
+  Found matching position in my results: X,35268,C
+    All match: +3 points
+Checking reference result: X,35630,C
+  Found matching position in my results: X,35630,C
+    All match: +3 points
+Checking reference result: I,35900,G
+  No matching position in my results
+Checking reference result: X,35939,C
+  Found matching position in my results: X,35939,C
+    All match: +3 points
+Checking reference result: X,36272,C
+  Found matching position in my results: X,36272,C
+    All match: +3 points
+Checking reference result: D,36867,-
+  Found matching position in my results: D,36867,-
+    All match: +3 points
+Checking reference result: X,37000,A
+  Found matching position in my results: X,37000,A
+    All match: +3 points
+Checking reference result: D,37116,-
+  Found matching position in my results: D,37116,-
+    All match: +3 points
+Checking reference result: X,37338,G
+  Found matching position in my results: X,37338,G
+    All match: +3 points
+Checking reference result: X,37501,G
+  Found matching position in my results: X,37501,G
+    All match: +3 points
+Checking reference result: D,37509,-
+  No matching position in my results
+Checking reference result: D,38447,-
+  Found matching position in my results: D,38447,-
+    All match: +3 points
+Checking reference result: X,38500,G
+  Found matching position in my results: X,38500,G
+    All match: +3 points
+Checking reference result: D,38956,-
+  No matching position in my results
+Checking reference result: X,39061,T
+  Found matching position in my results: X,39061,T
+    All match: +3 points
+Checking reference result: X,39209,G
+  Found matching position in my results: X,39209,G
+    All match: +3 points
+Checking reference result: X,39225,C
+  Found matching position in my results: X,39225,C
+    All match: +3 points
+Checking reference result: D,39362,-
+  Found matching position in my results: D,39362,-
+    All match: +3 points
+Checking reference result: I,39457,C
+  No matching position in my results
+Checking reference result: X,39806,T
+  Found matching position in my results: X,39806,T
+    All match: +3 points
+Checking reference result: X,40432,T
+  Found matching position in my results: X,40432,T
+    All match: +3 points
+Checking reference result: X,40497,T
+  Found matching position in my results: X,40497,T
+    All match: +3 points
+Checking reference result: X,40991,T
+  Found matching position in my results: X,40991,T
+    All match: +3 points
+Checking reference result: X,41146,C
+  Found matching position in my results: X,41146,C
+    All match: +3 points
+Checking reference result: X,41508,G
+  Found matching position in my results: X,41508,G
+    All match: +3 points
+Checking reference result: I,41655,T
+  Found matching position in my results: I,41655,T
+    All match: +3 points
+Checking reference result: I,41713,G
+  Found matching position in my results: I,41713,G
+    All match: +3 points
+Checking reference result: I,41877,A
+  No matching position in my results
+Checking reference result: X,42389,A
+  Found matching position in my results: X,42389,A
+    All match: +3 points
+Checking reference result: X,42564,T
+  Found matching position in my results: X,42564,T
+    All match: +3 points
+Checking reference result: I,42876,G
+  No matching position in my results
+Checking reference result: I,42983,T
+  No matching position in my results
+Checking reference result: I,43524,T
+  Found matching position in my results: X,43524,A
+    Position match, but type mismatch: +1 points
+Checking reference result: I,43678,G
+  Found matching position in my results: I,43678,G
+    All match: +3 points
+Checking reference result: D,43722,-
+  No matching position in my results
+Checking reference result: X,43867,A
+  Found matching position in my results: X,43867,T
+    Type match, but base mismatch: +2 points
+Checking reference result: X,43949,A
+  Found matching position in my results: X,43949,A
+    All match: +3 points
+Checking reference result: X,44373,G
+  Found matching position in my results: X,44373,G
+    All match: +3 points
+Checking reference result: X,44428,T
+  Found matching position in my results: X,44428,T
+    All match: +3 points
+Checking reference result: X,44436,G
+  Found matching position in my results: X,44436,G
+    All match: +3 points
+Checking reference result: X,44566,G
+  Found matching position in my results: X,44566,G
+    All match: +3 points
+Checking reference result: X,45044,A
+  Found matching position in my results: X,45044,A
+    All match: +3 points
+Checking reference result: X,45142,G
+  Found matching position in my results: X,45142,G
+    All match: +3 points
+Checking reference result: X,45653,T
+  Found matching position in my results: X,45653,T
+    All match: +3 points
+Checking reference result: I,45851,T
+  Found matching position in my results: X,45851,A
+    Position match, but type mismatch: +1 points
+Checking reference result: X,45905,C
+  Found matching position in my results: X,45905,A
+    Type match, but base mismatch: +2 points
+Checking reference result: X,46230,A
+  Found matching position in my results: X,46230,A
+    All match: +3 points
+Checking reference result: D,46818,-
+  Found matching position in my results: X,46818,G
+    Position match, but type mismatch: +1 points
+Checking reference result: X,47009,T
+  Found matching position in my results: X,47009,A
+    Type match, but base mismatch: +2 points
+Checking reference result: X,47093,A
+  Found matching position in my results: X,47093,A
+    All match: +3 points
+Checking reference result: X,47143,A
+  Found matching position in my results: X,47143,G
+    Type match, but base mismatch: +2 points
+Checking reference result: D,47224,-
+  Found matching position in my results: D,47224,-
+    All match: +3 points
+Checking reference result: D,47421,-
+  No matching position in my results
+Checking reference result: D,47872,-
+  Found matching position in my results: D,47872,-
+    All match: +3 points
+Checking reference result: X,47976,T
+  Found matching position in my results: X,47976,C
+    Type match, but base mismatch: +2 points
+Checking reference result: X,48018,C
+  Found matching position in my results: X,48018,A
+    Type match, but base mismatch: +2 points
+====================
+Total points: 503
+Max points: 606
+Accuracy: 83.00%

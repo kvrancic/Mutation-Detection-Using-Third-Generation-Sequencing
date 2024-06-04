@@ -1,0 +1,29 @@
+parsiramo SAM file u <SamEntry>-jeve za svako ocitanje
+
+te sve SamEntry-jeve pakiramo u dictionary <[pocetna pozicija, krajnja pozicija], <SamEntry>> 
+
+sortiramo dictionary prvo prema manjoj pocetnoj poziciji, a onda prema manjoj zavrsnoj poziciji 
+
+za svaku poziciju: 
+	- pronadi prvi element u dictionaryju kojem je trenutnaPozicija > pocetnaPozicija
+
+	dok je trenutnaPozicija < zavrsnaPozicija: 
+        - unosi svaki entry kao i do sad u MutationProposal 
+    
+    - izracunaj majority operation i majority base 
+
+    - ako je majority op I:
+        - sve kojima je M pomakni za jedno mjesto, sve kojima je D pomakni za 2 mjesta 
+
+    - ako je majority op D: 
+        - sve kojima je M pomakni za jedno mjesto, sve kojima je I pomakni za 2 mjesta (u drukciju stranu) 
+
+    - ako je majority op M: 
+        - sve I pomakni za jedno mjesto u jednu stranu, sve kojima je D pomakni za jedno mjesto u drugu stranu 
+
+    - zapiši ako je dobijena mutacija 
+
+
+NAPOMENA: 
+- Težina leži u tome što znači "pomaknuti za jedno mjesto", treba shvatiti što se točno pomiče, jesu to početna i krajnja pozicija, jel to samo count, jel trebamo ocitanje pomaknut tek na tom mjestu da ovo do sad ostane isto tj. podijelit ovo ocitanje u dva dijela itd. 
+
