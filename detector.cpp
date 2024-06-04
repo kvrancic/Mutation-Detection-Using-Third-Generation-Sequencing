@@ -120,6 +120,12 @@ void detectMutations(const vector<SamEntry>& samEntries, const string& reference
 
         if (entry.flag & 16) {
             // Reverzni komplement, preokreni sekvencu
+            for (char& base : readSeq) {
+                if (base == 'A') base = 'T';
+                else if (base == 'T') base = 'A';
+                else if (base == 'C') base = 'G';
+                else if (base == 'G') base = 'C';
+            }
             reverse(readSeq.begin(), readSeq.end());
         }
 
