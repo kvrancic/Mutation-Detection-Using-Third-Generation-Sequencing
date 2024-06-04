@@ -1,4 +1,5 @@
 import csv
+import sys
 
 def read_results(filename):
     results = []
@@ -50,11 +51,15 @@ def evaluate_results(my_results, ref_results, log_filename):
 
     print(f"Accuracy: {accuracy:.2f}%")
 
-# Replace with the actual file paths
-my_results_file = "data/mutations.csv"
-ref_results_file = "data/lambda_mutated.csv"
-log_file = "evaluation_log.txt"
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print("Usage: python evaluate.py <my_results_file> <ref_results_file> <log_file>")
+        sys.exit(1)
 
-my_results = read_results(my_results_file)
-ref_results = read_results(ref_results_file)
-evaluate_results(my_results, ref_results, log_file)
+    my_results_file = sys.argv[1]
+    ref_results_file = sys.argv[2]
+    log_file = sys.argv[3]
+
+    my_results = read_results(my_results_file)
+    ref_results = read_results(ref_results_file)
+    evaluate_results(my_results, ref_results, log_file)
