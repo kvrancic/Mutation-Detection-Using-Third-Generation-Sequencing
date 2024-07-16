@@ -1,7 +1,7 @@
 # Mutation Detection Using Third-Generation Sequencing
 
 ## Project Overview
-This is a university project for a bioinformatics course focused on detecting mutations in DNA sequences using third-generation sequencing data. The goal is to map sequencing reads to a reference genome, align them, and identify various types of mutations, including substitutions, insertions, and deletions. This project is implemented in C++.
+This is a university project for a bioinformatics course focused on detecting mutations in DNA sequences using third-generation sequencing data. The goal is to map sequencing reads to a reference genome, align them, and identify various types of mutations, including substitutions, insertions, and deletions. Then we compare results with output from tools like minimap2 and freebayes. 
 
 ## Installation
 
